@@ -13,10 +13,11 @@
   },
   "keywords": [
     "file server",
-    "content based",
+    "content store",
     "hash",
     "upload",
-    "restify"
+    "restify",
+    "multiparty"
   ],
   "author": "Heroqu",
   "license": "ISC",
