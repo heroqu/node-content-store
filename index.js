@@ -29,8 +29,7 @@ async function ContentStore (opts, createHash) {
 
   opts = Object.assign({}, defaults, opts)
 
-  // const storageDir = path.resolve(process.cwd(), opts.storageDir)
-  const storageDir = path.resolve(__dirname, opts.storageDir)
+  const storageDir = path.resolve(process.cwd(), opts.storageDir)
 
   // helper functions
 
@@ -50,7 +49,6 @@ async function ContentStore (opts, createHash) {
 
   // 2. Create server
 
-  // const server = restify.createServer({ name: opts.name, port: opts.port })
   const server = restify.createServer({ name: opts.name })
 
   server.use(logger('dev'))

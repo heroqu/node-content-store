@@ -38,6 +38,24 @@ start()
 .catch(console.error)
 ```
 
+Now one can upload a file:
+
+```
+curl -F 'sample=@sample.txt' http://localhost:8001/upload
+
+// with an response like this:
+
+{"result":"upload OK","files":[["sample.txt","ba089843d132af3231990d405f2ac3c0"]]}
+```
+
+and then download it:
+
+```
+curl -O http://localhost:8001/ba089843d132af3231990d405f2ac3c0
+```
+
+## Configuration
+
  The `ContentStore` constructor function returns a server promise. The first parameter is `options` object with following defaults:
 
 ```javascript
@@ -46,6 +64,8 @@ start()
   storageDir: 'data'
 }
 ```
+
+The specified storage directory is to be resolved against the `process.cwd()` - the directory of current process. If you need an absolute path, then set it here and it will remain as is.
 
 The second parameter is `createHash` function with desired implementation. This function should have no arguments and return a `hash` object, which should support two methods: `hash.update(chunk)` and `hash.digest(format)` with the same logics as in [node crypto module](https://nodejs.org/api/crypto.html#crypto_class_hash).
 
@@ -79,4 +99,4 @@ GET /:hash
 DELETE /:hash
 ```
 
-There is no much sense in `updating a content`. Just like as it is in GIT where `updating a file` leads to two really unrelated operations (from GIT point of view): deleting old content entry and creating new content entry.
+There is no much sense in *updating a content*. Just like as it is in GIT where *updating a file* leads to two really unrelated (from GIT point of view) operations: deleting old content entry and creating new content entry.
