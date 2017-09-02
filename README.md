@@ -1,6 +1,8 @@
 # content-store
 
-Content server with file upload, automatic hashing and hash based naming scheme.
+An HTTP content server with file upload, automatic hashing and hash based naming scheme.
+
+Or, put it another way: a **content addressable storage** server based on Restify, Multiparty and user defined hashing algorithm.
 
 ## Setup
 
@@ -8,7 +10,7 @@ Content server with file upload, automatic hashing and hash based naming scheme.
 npm install content-store
 ```
 
-## Usage example
+## Usage
 
 ```javascript
 const ContentStore = require('content-store')
@@ -48,10 +50,18 @@ curl -F 'sample=@sample.txt' http://localhost:8001/upload
 {"result":"upload OK","files":[["sample.txt","ba089843d132af3231990d405f2ac3c0"]]}
 ```
 
-and then download it:
+The `-F` option of cURL means we are using  `multipart/form-data` encoding, which is a standard way of uploading files over http.
+
+Download it:
 
 ```
 curl -O http://localhost:8001/ba089843d132af3231990d405f2ac3c0
+```
+
+Delete it:
+
+```
+curl -X DELETE http://localhost:8001/ba089843d132af3231990d405f2ac3c0
 ```
 
 ## Configuration
