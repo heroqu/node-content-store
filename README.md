@@ -6,7 +6,7 @@ Or, put it another way: a **content addressable storage** server based on Restif
 
 ## Setup
 
-```
+```sh
 npm install content-store
 ```
 
@@ -42,7 +42,7 @@ start()
 
 Now one can upload a file:
 
-```
+```sh
 curl -F 'sample=@sample.txt' http://localhost:8001/upload
 
 // with an response like this:
@@ -54,13 +54,13 @@ The `-F` option of cURL means we are using  `multipart/form-data` encoding, whic
 
 Download it:
 
-```
+```sh
 curl -O http://localhost:8001/ba089843d132af3231990d405f2ac3c0
 ```
 
 Delete it:
 
-```
+```sh
 curl -X DELETE http://localhost:8001/ba089843d132af3231990d405f2ac3c0
 ```
 
