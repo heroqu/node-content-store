@@ -6,9 +6,7 @@ Or, put it another way: a **content addressable storage** server based on Restif
 
 ## Setup
 
-```sh
-npm install content-store
-```
+`npm install content-store`
 
 ## Usage
 
@@ -42,7 +40,7 @@ start()
 
 Now one can upload a file:
 
-```sh
+```
 curl -F 'sample=@sample.txt' http://localhost:8001/upload
 
 // with an response like this:
@@ -50,19 +48,15 @@ curl -F 'sample=@sample.txt' http://localhost:8001/upload
 {"result":"upload OK","files":[["sample.txt","ba089843d132af3231990d405f2ac3c0"]]}
 ```
 
-The `-F` option of cURL means we are using  `multipart/form-data` encoding, which is a standard way of uploading files over http.
+The `-F` option of cURL means we are sending data as `multipart/form-data`, which is a standard way of uploading files over http.
 
 Download it:
 
-```sh
-curl -O http://localhost:8001/ba089843d132af3231990d405f2ac3c0
-```
+`curl -O http://localhost:8001/ba089843d132af3231990d405f2ac3c0`
 
 Delete it:
 
-```sh
-curl -X DELETE http://localhost:8001/ba089843d132af3231990d405f2ac3c0
-```
+`curl -X DELETE http://localhost:8001/ba089843d132af3231990d405f2ac3c0`
 
 ## Configuration
 
@@ -103,7 +97,7 @@ One consequence of such an approach is that any two uploaded files with the same
 
 Another consequence of the server being a *content store* is that it only supports 3 out of 4 CRUD operations:
 
-```javascript
+```
 POST /upload
 GET /:hash  
 DELETE /:hash
