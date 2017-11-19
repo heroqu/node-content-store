@@ -106,6 +106,7 @@ async function ContentStore (opts, createHash) {
     //      successfully written to disk
     let taskCounter = 0
 
+    // call this one before any subtask is started
     function taskPlus () {
       taskCounter++
     }
@@ -172,7 +173,7 @@ async function ContentStore (opts, createHash) {
           .catch(onAnyError)
 
           // By now both the file is written down and the hash is ready.
-          // Let's use the digest for the destination file name.
+          // Let's take the digest and use it as a destination file name.
           const destBaseName = ht.digest('hex')
           files.push([part.filename, destBaseName])
 

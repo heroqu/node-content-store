@@ -58,6 +58,10 @@ Delete it:
 
 `curl -X DELETE http://localhost:8001/ba089843d132af3231990d405f2ac3c0`
 
+## Sample dockerized application
+
+that uses this content-store as a backend microservice can be found [here](https://github.com/heroqu/book-liner)
+
 ## Configuration
 
  The `ContentStore` constructor function returns a server promise. The first parameter is `options` object with following defaults:
