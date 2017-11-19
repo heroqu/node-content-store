@@ -1,6 +1,6 @@
 {
   "name": "content-store",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Content server with file upload, automatic hashing and hash based naming scheme.",
   "main": "index.js",
   "scripts": {
