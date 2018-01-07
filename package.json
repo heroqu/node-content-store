@@ -12,12 +12,16 @@
     "url": "git+https://github.com/heroqu/node-content-store.git"
   },
   "keywords": [
-    "file server",
     "content store",
+    "content addressable store",
+    "blob store",
+    "http server",
+    "file server",
     "hash",
     "upload",
     "restify",
-    "multiparty"
+    "multiparty",
+    "multipart/form-data"
   ],
   "author": "Heroqu",
   "license": "ISC",

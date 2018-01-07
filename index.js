@@ -1,19 +1,13 @@
 'use strict'
-// restify stuff
 const restify = require('restify')
 const ERRS = require('restify-errors')
 const logger = require('morgan')
 const multiparty = require('multiparty')
-
-// working with files
 const path = require('path')
 const os = require('os')
 const fs = require('fs-extra')
-
 const { randomBytes } = require('crypto')
 const eventPromise = require('./lib/event-promise')
-
-// hashing pass-through stream constructor
 const HashThrough = require('hash-through')
 
 async function ContentStore (opts, createHash) {
@@ -21,40 +15,28 @@ async function ContentStore (opts, createHash) {
     throw new TypeError('createHash should be a function')
   }
 
-  // override these defaults with opts
-  let defaults = {
+  opts = { // apply defaults
     name: 'content-store',
-    storageDir: 'data'
+    storageDir: 'data',
+    ...opts
   }
-
-  opts = Object.assign({}, defaults, opts)
 
   const storageDir = path.resolve(process.cwd(), opts.storageDir)
 
-  // helper functions
-
-  // full path to a temporary file
   function tmpFileName () {
     return path.resolve(os.tmpdir(), `tmp_${randomBytes(16).toString('hex')}`)
   }
 
-  // full path to a destination file
   function destFileName (basename) {
     return path.resolve(storageDir, `${basename}`)
   }
 
-  // 1. Create storage directory if absent
-
   await fs.ensureDir(storageDir)
-
-  // 2. Create server
 
   const server = restify.createServer({ name: opts.name })
 
   server.use(logger('dev'))
   server.use(restify.plugins.acceptParser(server.acceptable))
-
-  // 3. Set up routes
 
   server.get('/', function (req, res, next) {
     res.send(200, {result: `Hi, this is a ${server.name}. Use POST /upload to feed me with files.`})
@@ -112,35 +94,27 @@ async function ContentStore (opts, createHash) {
     }
 
     // call this one after any subtask is finished
-    function taskMinus () {
+    function taskMinus() {
       taskCounter--
       if (taskCounter === 0) {
         // Time to respond
         if (files.length === 0) {
-          res.send(200,
-            {
-              result: 'no files to upload',
-              files
-            }
-          )
+          res.send(200, {
+            result: 'no files to upload',
+            files
+          })
         } else {
-          res.send(201,
-            {
-              result: 'upload OK',
-              files
-            }
-          )
+          res.send(201, {
+            result: 'upload OK',
+            files
+          })
         }
-
         next()
       }
     }
 
-    // {autoFields: true} option allows omitting form.on('field',...)
-    // handler altogether. Otherwise, without such a handler,
-    // the server would got stuck waiting for the 'field' event
-    // to be handled. But as we are only interested in files
-    // here then we are good to go like this.
+    // {autoFields: true} to allow omitting form.on('field',...)
+    // without hanging on request
     const form = new multiparty.Form({ autoFields: true })
 
     function onAnyError (err) {
@@ -153,58 +127,46 @@ async function ContentStore (opts, createHash) {
 
       try {
         if (part.filename) {
-          // This part is a file readable stream.
-          // If more then one file is being uploading, then 'part' event
+          // part is a readable stream of data for a single file.
+          // If multiple files are being uploaded, then 'part' event
           // will be triggered that much times.
 
-          // register a task for each part (=for each uploading file)
-          taskPlus()
+          taskPlus()  // add a task for current file
 
           const tmpFile = tmpFileName()
           const fileSink = fs.createWriteStream(tmpFile)
 
-          // create hashing stream
+          // a stream to calculate the data hash on the fly
           const ht = HashThrough(createHash)
 
-          // Pipe file's data to a tmp file
+          // Pipe file's data to disk
           part.pipe(ht).pipe(fileSink)
-
           await (eventPromise(fileSink, 'finish'))
-          .catch(onAnyError)
 
           // By now both the file is written down and the hash is ready.
           // Let's take the digest and use it as a destination file name.
           const destBaseName = ht.digest('hex')
           files.push([part.filename, destBaseName])
 
+          // rename tmp file
           const destFile = destFileName(destBaseName)
-
-          // rename the tmp file
           await fs.move(tmpFile, destFile, {overwrite: true})
-          .catch(onAnyError)
 
-          // done with this file
-          taskMinus()
+          taskMinus()    // done with this file
         }
       } catch (err) {
         onAnyError(err)
       }
     })
 
-    form.on('close', function () {
-      // all parts are parsed and emitted, but that doesn't mean those
-      // parts are already written down to the disk.
-      // Not ready to respond yet, just deregister the parsing task:
-      taskMinus()
-    })
+    form.on('close', taskMinus)  // done with parsing form
 
     form.on('error', onAnyError)
 
-    // start parsing...
-    form.parse(req)
+    // Let's start
 
-    // ... and register this as a separate task.
-    taskPlus()
+    taskPlus()        // add a task for parsing form
+    form.parse(req)
   })
 
   server.on('uncaughtException', function (req, res, route, err) {
